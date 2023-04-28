@@ -9,11 +9,8 @@ import models
 from models import state
 from models.base_model import BaseModel
 import pep8
-from os import getenv, remove
 import unittest
 State = state.State
-
-storage = getenv("HBNB_TYPE_STORAGE", "fs")
 
 
 class TestStateDocs(unittest.TestCase):
@@ -62,47 +59,47 @@ class TestStateDocs(unittest.TestCase):
 
 class TestState(unittest.TestCase):
     """Test the State class"""
-    @classmethod
-    def setUpClass(cls):
-        '''
-            Sets up unittest
-        '''
-        cls.new_state = State()
-        cls.new_state.name = "California"
+    def test_is_subclass(self):
+        """Test that State is a subclass of BaseModel"""
+        state = State()
+        self.assertIsInstance(state, BaseModel)
+        self.assertTrue(hasattr(state, "id"))
+        self.assertTrue(hasattr(state, "created_at"))
+        self.assertTrue(hasattr(state, "updated_at"))
 
-    @classmethod
-    def tearDownClass(cls):
-        '''
-            Tears down unittest
-        '''
-        del cls.new_state
-        try:
-            remove("file.json")
-        except FileNotFoundError:
-            pass
+    def test_name_attr(self):
+        """Test that State has attribute name, and it's as an empty string"""
+        state = State()
+        self.assertTrue(hasattr(state, "name"))
+        if models.storage_t == 'db':
+            self.assertEqual(state.name, None)
+        else:
+            self.assertEqual(state.name, "")
 
-    def test_States_dbtable(self):
-        '''
-            Check if the tablename is correct
-        '''
-        self.assertEqual(self.new_state.__tablename__, "states")
+    def test_to_dict_creates_dict(self):
+        """test to_dict method creates a dictionary with proper attrs"""
+        s = State()
+        new_d = s.to_dict()
+        self.assertEqual(type(new_d), dict)
+        self.assertFalse("_sa_instance_state" in new_d)
+        for attr in s.__dict__:
+            if attr is not "_sa_instance_state":
+                self.assertTrue(attr in new_d)
+        self.assertTrue("__class__" in new_d)
 
-    def test_State_inheritence(self):
-        '''
-            Test that State class inherits from BaseModel.
-        '''
-        self.assertIsInstance(self.new_state, BaseModel)
+    def test_to_dict_values(self):
+        """test that values in dict returned from to_dict are correct"""
+        t_format = "%Y-%m-%dT%H:%M:%S.%f"
+        s = State()
+        new_d = s.to_dict()
+        self.assertEqual(new_d["__class__"], "State")
+        self.assertEqual(type(new_d["created_at"]), str)
+        self.assertEqual(type(new_d["updated_at"]), str)
+        self.assertEqual(new_d["created_at"], s.created_at.strftime(t_format))
+        self.assertEqual(new_d["updated_at"], s.updated_at.strftime(t_format))
 
-    def test_State_attributes(self):
-        '''
-            Test that State class contains the attribute `name`.
-        '''
-        self.assertTrue("name" in self.new_state.__dir__())
-
-    @unittest.skipIf(storage == "db", "Testing database storage only")
-    def test_State_attributes_type(self):
-        '''
-            Test that State class attribute name is class type str.
-        '''
-        name = getattr(self.new_state, "name")
-        self.assertIsInstance(name, str)
+    def test_str(self):
+        """test that the str method has the correct output"""
+        state = State()
+        string = "[State] ({}) {}".format(state.id, state.__dict__)
+        self.assertEqual(string, str(state))
