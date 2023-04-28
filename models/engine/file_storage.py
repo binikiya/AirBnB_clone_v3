@@ -18,6 +18,7 @@ import json
 import os
 import pep8
 import unittest
+storage = models.storage
 FileStorage = file_storage.FileStorage
 classes = {"Amenity": Amenity, "BaseModel": BaseModel, "City": City,
            "Place": Place, "Review": Review, "State": State, "User": User}
@@ -68,13 +69,13 @@ test_file_storage.py'])
                             "{:s} method needs a docstring".format(func[0]))
             
     def test_doc_get(self):
-        """... documentation for get function"""
+        """documentation for get function"""
         expected = ' retrieves one object '
         actual = FileStorage.get.__doc__
         self.assertEqual(expected, actual)
 
     def test_doc_count(self):
-        """... documentation for count function"""
+        """documentation for count function"""
         expected = ' counts number of objects of a class in storage '
         actual = FileStorage.count.__doc__
         self.assertEqual(expected, actual)
@@ -125,3 +126,25 @@ class TestFileStorage(unittest.TestCase):
         with open("file.json", "r") as f:
             js = f.read()
         self.assertEqual(json.loads(string), json.loads(js))
+
+    def test_get(self):
+        """check if get method returns state"""
+        real_state = storage.get("State", self.state.id)
+        fake_state = storage.get("State", "12345")
+        no_state = storage.get("", "")
+
+        self.assertEqual(real_state, self.state)
+        self.assertNotEqual(fake_state, self.state)
+        self.assertIsNone(no_state)
+
+    def test_count(self):
+        """checks if count method returns correct numbers"""
+        state_count = storage.count("State")
+        city_count = storage.count("City")
+        place_count = storage.count("Place")
+        all_count = storage.count(None)
+
+        self.assertEqual(state_count, 1)
+        self.assertEqual(city_count, 2)
+        self.assertEqual(place_count, 0)
+        self.assertEqual(all_count, 18)
