@@ -72,6 +72,19 @@ test_db_storage.py'])
             self.assertTrue(len(func[1].__doc__) >= 1,
                             "{:s} method needs a docstring".format(func[0]))
 
+    def test_doc_get(self):
+        """documentation for get function"""
+        expected = ' retrieves one object '
+        actual = DBStorage.get.__doc__
+        self.assertEqual(expected, actual)
+
+    def test_doc_count(self):
+        """testing length version of count function
+        """
+        expected = 293
+        actual = len(DBStorage.count.__doc__)
+        self.assertEqual(expected, actual)
+
 
 class TestFileStorage(unittest.TestCase):
     """Test the FileStorage class"""
