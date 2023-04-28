@@ -106,22 +106,23 @@ class TestFileStorage(unittest.TestCase):
         """Test that save properly saves objects to file.json"""
 
     def test_get(self):
-        """Test get"""
-        new_state = State(name="NewYork")
-        storage.new(new_state)
-        key = "State.{}".format(new_state.id)
-        result = storage.get("State", new_state.id)
-        self.assertTrue(result.id, new_state.id)
-        self.assertIsInstance(result, State)
+        """check if get method returns state"""
+        real_state = storage.get("State", self.state.id)
+        fake_state = storage.get("State", "12345")
+        no_state = storage.get("", "")
+
+        self.assertEqual(real_state, self.state)
+        self.assertNotEqual(fake_state, self.state)
+        self.assertIsNone(no_state)
 
     def test_count(self):
-        """Test count"""
-        storage.reload()
-        old_count = storage.count("State")
-        new_state1 = State(name="NewYork")
-        storage.new(new_state1)
-        new_state2 = State(name="Virginia")
-        storage.new(new_state2)
-        new_state3 = State(name="California")
-        storage.new(new_state3)
-        self.assertEqual(old_count + 3, storage.count("State"))
+        """checks if count method returns correct numbers"""
+        state_count = storage.count("State")
+        city_count = storage.count("City")
+        place_count = storage.count("Place")
+        all_count = storage.count("")
+
+        self.assertEqual(state_count, 3)
+        self.assertEqual(city_count, 4)
+        self.assertEqual(place_count, 0)
+        self.assertEqual(all_count, 7)
