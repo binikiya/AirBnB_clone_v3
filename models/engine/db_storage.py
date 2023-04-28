@@ -76,16 +76,36 @@ class DBStorage:
         self.__session.remove()
 
     def get(self, cls, id):
-        """retrieve one object"""
-        obj_dict = models.storage.all(cls)
-        for k, v in obj_dict.items():
-            matchstring = cls + '.' + id
-            if k == matchstring:
-                return v
+        """ retrieves one object """
+        try:
+            obj_dict = {}
+            if cls:
+                obj_class = self.__session.query(self.CNC.get(cls)).all()
+                for item in obj_class:
+                    obj_dict[item.id] = item
+            return obj_dict[id]
+        except:
+            return None
 
-        return None
-    
     def count(self, cls=None):
-        """count the number of objects in storage"""
-        obj_dict = models.storage.all(cls)
-        return len(obj_dict)
+        """Counts number of objects in storage
+        Args:
+            cls: optional string representing the class name
+        Returns:
+            the number of objects in storage matching the given class name.
+            If no name is passed, returns the count of all objects in storage.
+        """
+        obj_dict = {}
+        if cls:
+            obj_class = self.__session.query(self.CNC.get(cls)).all()
+            for item in obj_class:
+                obj_dict[item.id] = item
+            return len(obj_dict)
+        else:
+            for cls_name in self.CNC:
+                if cls_name == 'BaseModel':
+                    continue
+                obj_class = self.__session.query(self.CNC.get(cls_name)).all()
+                for item in obj_class:
+                    obj_dict[item.id] = item
+            return len(obj_dict)
