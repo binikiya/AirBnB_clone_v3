@@ -117,7 +117,7 @@ class TestFileStorage(unittest.TestCase):
 
     def test_get(self):
         """Test get"""
-        new_state = State(name = "NewYork")
+        new_state = State(name="NewYork")
         storage.new(new_state)
         key = "State.{}".format(new_state.id)
         result = storage.get("State", new_state.id)
@@ -127,10 +127,10 @@ class TestFileStorage(unittest.TestCase):
     def test_count(self):
         """Test count"""
         old_count = storage.count("State")
-        new_state1 = State(name = "NewYork")
+        new_state1 = State(name="NewYork")
         storage.new(new_state1)
-        new_state2 = State(name = "Virginia")
+        new_state2 = State(name="Virginia")
         storage.new(new_state2)
-        new_state3 = State(name = "California")
+        new_state3 = State(name="California")
         storage.new(new_state3)
         self.assertEqual(old_count + 3, storage.count("State"))
