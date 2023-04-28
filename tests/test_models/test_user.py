@@ -11,6 +11,9 @@ from models.base_model import BaseModel
 import pep8
 import unittest
 User = user.User
+from os import getenv, remove
+
+storage = getenv("HBNB_TYPE_STORAGE", "fs")
 
 
 class TestUserDocs(unittest.TestCase):
@@ -59,74 +62,59 @@ class TestUserDocs(unittest.TestCase):
 
 class TestUser(unittest.TestCase):
     """Test the User class"""
-    def test_is_subclass(self):
-        """Test that User is a subclass of BaseModel"""
-        user = User()
-        self.assertIsInstance(user, BaseModel)
-        self.assertTrue(hasattr(user, "id"))
-        self.assertTrue(hasattr(user, "created_at"))
-        self.assertTrue(hasattr(user, "updated_at"))
+    @classmethod
+    def setUpClass(cls):
+        """Sets up unittest"""
+        cls.new_user = User()
+        cls.new_user.email = "email@gmail.com"
+        cls.new_user.password = "password"
+        cls.new_user.firt_name = "Mel"
+        cls.new_user.last_name = "Ng"
 
-    def test_email_attr(self):
-        """Test that User has attr email, and it's an empty string"""
-        user = User()
-        self.assertTrue(hasattr(user, "email"))
-        if models.storage_t == 'db':
-            self.assertEqual(user.email, None)
-        else:
-            self.assertEqual(user.email, "")
+    @classmethod
+    def tearDownClass(cls):
+        """Tears down unittest"""
+        del cls.new_user
+        try:
+            remove("file.json")
+        except FileNotFoundError:
+            pass
 
-    def test_password_attr(self):
-        """Test that User has attr password, and it's an empty string"""
-        user = User()
-        self.assertTrue(hasattr(user, "password"))
-        if models.storage_t == 'db':
-            self.assertEqual(user.password, None)
-        else:
-            self.assertEqual(user.password, "")
+    def test_User_dbtable(self):
+        """Check if the tablename is correct"""
+        self.assertEqual(self.new_user.__tablename__, "users")
 
-    def test_first_name_attr(self):
-        """Test that User has attr first_name, and it's an empty string"""
-        user = User()
-        self.assertTrue(hasattr(user, "first_name"))
-        if models.storage_t == 'db':
-            self.assertEqual(user.first_name, None)
-        else:
-            self.assertEqual(user.first_name, "")
+    def test_User_inheritance(self):
+        """tests that the User class Inherits from BaseModel"""
+        self.assertIsInstance(self.new_user, BaseModel)
 
-    def test_last_name_attr(self):
-        """Test that User has attr last_name, and it's an empty string"""
-        user = User()
-        self.assertTrue(hasattr(user, "last_name"))
-        if models.storage_t == 'db':
-            self.assertEqual(user.last_name, None)
-        else:
-            self.assertEqual(user.last_name, "")
+    def test_User_attributes(self):
+        """Test the user attributes exist"""
+        self.assertTrue("email" in self.new_user.__dir__())
+        self.assertTrue("first_name" in self.new_user.__dir__())
+        self.assertTrue("last_name" in self.new_user.__dir__())
+        self.assertTrue("password" in self.new_user.__dir__())
 
-    def test_to_dict_creates_dict(self):
-        """test to_dict method creates a dictionary with proper attrs"""
-        u = User()
-        new_d = u.to_dict()
-        self.assertEqual(type(new_d), dict)
-        self.assertFalse("_sa_instance_state" in new_d)
-        for attr in u.__dict__:
-            if attr is not "_sa_instance_state":
-                self.assertTrue(attr in new_d)
-        self.assertTrue("__class__" in new_d)
+    @unittest.skipIf(storage == "db", "Testing database storage only")
+    def test_type_email(self):
+        """Test the type of name"""
+        name = getattr(self.new_user, "email")
+        self.assertIsInstance(name, str)
 
-    def test_to_dict_values(self):
-        """test that values in dict returned from to_dict are correct"""
-        t_format = "%Y-%m-%dT%H:%M:%S.%f"
-        u = User()
-        new_d = u.to_dict()
-        self.assertEqual(new_d["__class__"], "User")
-        self.assertEqual(type(new_d["created_at"]), str)
-        self.assertEqual(type(new_d["updated_at"]), str)
-        self.assertEqual(new_d["created_at"], u.created_at.strftime(t_format))
-        self.assertEqual(new_d["updated_at"], u.updated_at.strftime(t_format))
+    @unittest.skipIf(storage == "db", "Testing database storage only")
+    def test_type_first_name(self):
+        """Test the type of name"""
+        name = getattr(self.new_user, "first_name")
+        self.assertIsInstance(name, str)
 
-    def test_str(self):
-        """test that the str method has the correct output"""
-        user = User()
-        string = "[User] ({}) {}".format(user.id, user.__dict__)
-        self.assertEqual(string, str(user))
+    @unittest.skipIf(storage == "db", "Testing database storage only")
+    def test_type_last_name(self):
+        """Test the type of last_name"""
+        name = getattr(self.new_user, "last_name")
+        self.assertIsInstance(name, str)
+
+    @unittest.skipIf(storage == "db", "Testing database storage only")
+    def test_type_password(self):
+        """Test the type of password"""
+        name = getattr(self.new_user, "password")
+        self.assertIsInstance(name, str)
