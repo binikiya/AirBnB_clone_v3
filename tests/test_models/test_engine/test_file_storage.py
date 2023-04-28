@@ -116,9 +116,7 @@ class TestFileStorage(unittest.TestCase):
         self.assertEqual(json.loads(string), json.loads(js))
 
     def test_get(self):
-        '''
-            Test if get method retrieves obj requested
-        '''
+        """Test get"""
         new_state = State(name="NewYork")
         storage.new(new_state)
         key = "State.{}".format(new_state.id)
@@ -127,9 +125,7 @@ class TestFileStorage(unittest.TestCase):
         self.assertIsInstance(result, State)
 
     def test_count(self):
-        '''
-            Test if count method returns expected number of objects
-        '''
+        """Test count"""
         old_count = storage.count("State")
         new_state1 = State(name="NewYork")
         storage.new(new_state1)
